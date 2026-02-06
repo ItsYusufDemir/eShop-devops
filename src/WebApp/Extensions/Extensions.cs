@@ -59,6 +59,7 @@ public static class Extensions
 
         var identityUrl = configuration.GetRequiredValue("IdentityUrl");
         var callBackUrl = configuration.GetRequiredValue("CallBackUrl");
+        var identityUrlInternal = configuration.GetValue<string>("IdentityUrlInternal") ?? identityUrl;
         var sessionCookieLifetime = configuration.GetValue("SessionCookieLifetimeMinutes", 60);
 
         // Add Authentication services
@@ -72,7 +73,7 @@ public static class Extensions
         .AddOpenIdConnect(options =>
         {
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.Authority = identityUrl;
+            options.Authority = identityUrlInternal;
             options.SignedOutRedirectUri = callBackUrl;
             options.ClientId = "webapp";
             options.ClientSecret = "secret";
@@ -84,6 +85,24 @@ public static class Extensions
             options.Scope.Add("profile");
             options.Scope.Add("orders");
             options.Scope.Add("basket");
+
+            options.TokenValidationParameters.ValidIssuers = [identityUrl, identityUrlInternal];
+
+            options.Events = new Microsoft.AspNetCore.Authentication.OpenIdConnect.OpenIdConnectEvents
+            {
+                OnRedirectToIdentityProvider = context =>
+                {
+                    context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress
+                        .Replace(identityUrlInternal, identityUrl);
+                    return Task.CompletedTask;
+                },
+                OnRedirectToIdentityProviderForSignOut = context =>
+                {
+                    context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress
+                        .Replace(identityUrlInternal, identityUrl);
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         // Blazor auth services
