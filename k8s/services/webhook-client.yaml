@@ -5,6 +5,7 @@ metadata:
   namespace: eshop
 data:
   ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+  Kestrel__EndpointDefaults__Protocols: "Http1AndHttp2"
   # OIDC: browser-facing URL (user's browser redirects here)
   IdentityUrl: "https://identity.eshop.marmaracse.xyz"
   # OIDC: backend token validation (pod-to-pod inside cluster)

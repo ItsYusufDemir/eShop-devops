@@ -5,6 +5,7 @@ metadata:
   namespace: eshop
 data:
   ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+  Kestrel__EndpointDefaults__Protocols: "Http1AndHttp2"
   WebAppClient: "https://eshop.marmaracse.xyz"
   WebhooksWebClient: "https://webhook.eshop.marmaracse.xyz"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
