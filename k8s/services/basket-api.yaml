@@ -5,7 +5,7 @@ metadata:
   namespace: eshop
 data:
   Identity__Url: "http://identity-api:8080"
-  
+
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
   OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
   OTEL_TRACES_SAMPLER: "always_on"
@@ -35,7 +35,6 @@ spec:
           image: 192.168.1.175:8082/eshop/basket-api:v2
           ports:
             - containerPort: 8080
-            - containerPort: 8081
           envFrom:
             - configMapRef:
                 name: basket-api-config
@@ -79,9 +78,5 @@ spec:
   selector:
     app: basket-api
   ports:
-    - name: http
-      port: 8080
+    - port: 8080
       targetPort: 8080
-    - name: grpc
-      port: 8081
-      targetPort: 8081
