@@ -28,6 +28,7 @@ public static class Extensions
 
         var identityUrl = configuration.GetRequiredValue("IdentityUrl");
         var callBackUrl = configuration.GetRequiredValue("CallBackUrl");
+        var identityUrlInternal = configuration.GetValue<string>("IdentityUrlInternal") ?? identityUrl;
         var sessionCookieLifetime = configuration.GetValue("SessionCookieLifetimeMinutes", 60);
 
         // Add Authentication services
@@ -48,7 +49,7 @@ public static class Extensions
         .AddOpenIdConnect(options =>
         {
             options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-            options.Authority = identityUrl.ToString();
+            options.Authority = identityUrlInternal.ToString();
             options.SignedOutRedirectUri = callBackUrl.ToString();
             options.ClientId = "webhooksclient";
             options.ClientSecret = "secret";
@@ -58,6 +59,24 @@ public static class Extensions
             options.RequireHttpsMetadata = false;
             options.Scope.Add("openid");
             options.Scope.Add("webhooks");
+
+            options.TokenValidationParameters.ValidIssuers = [identityUrl, identityUrlInternal];
+
+            options.Events = new OpenIdConnectEvents
+            {
+                OnRedirectToIdentityProvider = context =>
+                {
+                    context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress
+                        .Replace(identityUrlInternal, identityUrl);
+                    return Task.CompletedTask;
+                },
+                OnRedirectToIdentityProviderForSignOut = context =>
+                {
+                    context.ProtocolMessage.IssuerAddress = context.ProtocolMessage.IssuerAddress
+                        .Replace(identityUrlInternal, identityUrl);
+                    return Task.CompletedTask;
+                }
+            };
         });
 
         services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();

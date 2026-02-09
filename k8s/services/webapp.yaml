@@ -1,0 +1,87 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webapp-config
+  namespace: eshop
+data:
+  ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+  Kestrel__EndpointDefaults__Protocols: "Http1AndHttp2"
+  # OIDC: browser-facing URL (user's browser redirects here)
+  IdentityUrl: "http://identity.eshop.marmaracse.xyz"
+  # OIDC: backend token validation (pod-to-pod inside cluster)
+  IdentityUrlInternal: "http://identity-api:8080"
+  CallBackUrl: "http://eshop.marmaracse.xyz"
+  # Service discovery (pod-to-pod)
+  services__catalog-api__http__0: "http://catalog-api:8080"
+  services__basket-api__http__0: "http://basket-api:8080"
+  services__basket-api__grpc__0: "http://basket-api:8081"
+  services__ordering-api__http__0: "http://ordering-api:8080"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+  OTEL_TRACES_SAMPLER: "always_on"
+  OTEL_SERVICE_NAME: "webapp"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webapp
+  namespace: eshop
+  labels:
+    app: webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webapp
+  template:
+    metadata:
+      labels:
+        app: webapp
+    spec:
+      imagePullSecrets:
+        - name: nexus-registry
+      containers:
+        - name: webapp
+          image: 192.168.1.175:8082/eshop/webapp:v2
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: webapp-config
+          env:
+            - name: ConnectionStrings__EventBus
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secrets
+                  key: eventbus-connection
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webapp
+  namespace: eshop
+spec:
+  selector:
+    app: webapp
+  ports:
+    - port: 8080
+      targetPort: 8080

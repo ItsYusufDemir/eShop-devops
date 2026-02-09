@@ -1,0 +1,78 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webhook-client-config
+  namespace: eshop
+data:
+  ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
+  # OIDC: browser-facing URL (user's browser redirects here)
+  IdentityUrl: "http://identity.eshop.marmaracse.xyz"
+  # OIDC: backend token validation (pod-to-pod inside cluster)
+  IdentityUrlInternal: "http://identity-api:8080"
+  CallBackUrl: "http://webhook.eshop.marmaracse.xyz"
+  # Service discovery (pod-to-pod)
+  services__webhooks-api__http__0: "http://webhooks-api:8080"
+  WebhookClientOptions__SelfUrl: "http://webhook-client:8080/"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+  OTEL_TRACES_SAMPLER: "always_on"
+  OTEL_SERVICE_NAME: "webhook-client"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhook-client
+  namespace: eshop
+  labels:
+    app: webhook-client
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhook-client
+  template:
+    metadata:
+      labels:
+        app: webhook-client
+    spec:
+      imagePullSecrets:
+        - name: nexus-registry
+      containers:
+        - name: webhook-client
+          image: 192.168.1.175:8082/eshop/webhook-client:v2
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: webhook-client-config
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 128Mi
+            limits:
+              cpu: 250m
+              memory: 256Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhook-client
+  namespace: eshop
+spec:
+  selector:
+    app: webhook-client
+  ports:
+    - port: 8080
+      targetPort: 8080

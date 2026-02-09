@@ -1,0 +1,81 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: webhooks-api-config
+  namespace: eshop
+data:
+  Identity__Url: "http://identity-api:8080"
+  OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
+  OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
+  OTEL_TRACES_SAMPLER: "always_on"
+  OTEL_SERVICE_NAME: "webhooks-api"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: webhooks-api
+  namespace: eshop
+  labels:
+    app: webhooks-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: webhooks-api
+  template:
+    metadata:
+      labels:
+        app: webhooks-api
+    spec:
+      imagePullSecrets:
+        - name: nexus-registry
+      containers:
+        - name: webhooks-api
+          image: 192.168.1.175:8082/eshop/webhooks-api:v2
+          ports:
+            - containerPort: 8080
+          envFrom:
+            - configMapRef:
+                name: webhooks-api-config
+          env:
+            - name: ConnectionStrings__webhooksdb
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secrets
+                  key: webhooksdb-connection
+            - name: ConnectionStrings__EventBus
+              valueFrom:
+                secretKeyRef:
+                  name: eshop-secrets
+                  key: eventbus-connection
+          readinessProbe:
+            httpGet:
+              path: /health
+              port: 8080
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /alive
+              port: 8080
+            initialDelaySeconds: 15
+            periodSeconds: 30
+          resources:
+            requests:
+              cpu: 100m
+              memory: 256Mi
+            limits:
+              cpu: 500m
+              memory: 512Mi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: webhooks-api
+  namespace: eshop
+spec:
+  selector:
+    app: webhooks-api
+  ports:
+    - port: 8080
+      targetPort: 8080

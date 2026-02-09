@@ -1,0 +1,76 @@
+# ============================================================
+# External Infrastructure Services (running on 192.168.1.175)
+# ExternalName only works with DNS names, not IPs.
+# For IPs we use headless Service + manual Endpoints.
+# ============================================================
+
+# --- PostgreSQL (pgvector) ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: db
+  namespace: eshop
+spec:
+  clusterIP: None
+  ports:
+    - port: 5432
+      targetPort: 5432
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: db
+  namespace: eshop
+subsets:
+  - addresses:
+      - ip: 192.168.1.175
+    ports:
+      - port: 5432
+---
+
+# --- Redis ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cache
+  namespace: eshop
+spec:
+  clusterIP: None
+  ports:
+    - port: 6379
+      targetPort: 6379
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: cache
+  namespace: eshop
+subsets:
+  - addresses:
+      - ip: 192.168.1.175
+    ports:
+      - port: 6379
+---
+
+# --- RabbitMQ ---
+apiVersion: v1
+kind: Service
+metadata:
+  name: queue
+  namespace: eshop
+spec:
+  clusterIP: None
+  ports:
+    - port: 5672
+      targetPort: 5672
+---
+apiVersion: v1
+kind: Endpoints
+metadata:
+  name: queue
+  namespace: eshop
+subsets:
+  - addresses:
+      - ip: 192.168.1.175
+    ports:
+      - port: 5672
