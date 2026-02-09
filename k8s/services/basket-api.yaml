@@ -5,7 +5,10 @@ metadata:
   namespace: eshop
 data:
   Identity__Url: "http://identity-api:8080"
-  Kestrel__EndpointDefaults__Protocols: "Http1AndHttp2"
+  Kestrel__Endpoints__Http__Url: "http://0.0.0.0:8080"
+  Kestrel__Endpoints__Http__Protocols: "Http1AndHttp2"
+  Kestrel__Endpoints__Grpc__Url: "http://0.0.0.0:8081"
+  Kestrel__Endpoints__Grpc__Protocols: "Http2"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
   OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
   OTEL_TRACES_SAMPLER: "always_on"
@@ -35,6 +38,9 @@ spec:
           image: 192.168.1.175:8082/eshop/basket-api:v2
           ports:
             - containerPort: 8080
+              name: http
+            - containerPort: 8081
+              name: grpc
           envFrom:
             - configMapRef:
                 name: basket-api-config
@@ -78,5 +84,9 @@ spec:
   selector:
     app: basket-api
   ports:
-    - port: 8080
+    - name: http
+      port: 8080
       targetPort: 8080
+    - name: grpc
+      port: 8081
+      targetPort: 8081
