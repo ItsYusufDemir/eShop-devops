@@ -28,7 +28,7 @@ public static class Extensions
         builder.AddAIServices();
 
         // HTTP and GRPC client registrations
-        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://_grpc.basket-api"))
+        builder.Services.AddGrpcClient<Basket.BasketClient>(o => o.Address = new("http://basket-api"))
             .AddAuthToken();
 
         builder.Services.AddHttpClient<CatalogService>(o => o.BaseAddress = new("https+http://catalog-api"))
