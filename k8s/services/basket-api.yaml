@@ -5,6 +5,7 @@ metadata:
   namespace: eshop
 data:
   Identity__Url: "http://identity-api:8080"
+  
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
   OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
   OTEL_TRACES_SAMPLER: "always_on"

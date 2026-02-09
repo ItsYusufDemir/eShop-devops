@@ -5,8 +5,8 @@ metadata:
   namespace: eshop
 data:
   ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
-  WebAppClient: "http://eshop.marmaracse.xyz"
-  WebhooksWebClient: "http://webhook.eshop.marmaracse.xyz"
+  WebAppClient: "https://eshop.marmaracse.xyz"
+  WebhooksWebClient: "https://webhook.eshop.marmaracse.xyz"
   OTEL_EXPORTER_OTLP_ENDPOINT: "http://otel-collector.eshop.svc.cluster.local:4318"
   OTEL_EXPORTER_OTLP_PROTOCOL: "http/protobuf"
   OTEL_TRACES_SAMPLER: "always_on"

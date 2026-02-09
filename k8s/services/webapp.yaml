@@ -7,10 +7,10 @@ data:
   ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
   Kestrel__EndpointDefaults__Protocols: "Http1AndHttp2"
   # OIDC: browser-facing URL (user's browser redirects here)
-  IdentityUrl: "http://identity.eshop.marmaracse.xyz"
+  IdentityUrl: "https://identity.eshop.marmaracse.xyz"
   # OIDC: backend token validation (pod-to-pod inside cluster)
   IdentityUrlInternal: "http://identity-api:8080"
-  CallBackUrl: "http://eshop.marmaracse.xyz"
+  CallBackUrl: "https://eshop.marmaracse.xyz"
   # Service discovery (pod-to-pod)
   services__catalog-api__http__0: "http://catalog-api:8080"
   services__basket-api__http__0: "http://basket-api:8080"

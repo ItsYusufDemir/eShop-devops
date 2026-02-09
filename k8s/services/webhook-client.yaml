@@ -6,10 +6,10 @@ metadata:
 data:
   ASPNETCORE_FORWARDEDHEADERS_ENABLED: "true"
   # OIDC: browser-facing URL (user's browser redirects here)
-  IdentityUrl: "http://identity.eshop.marmaracse.xyz"
+  IdentityUrl: "https://identity.eshop.marmaracse.xyz"
   # OIDC: backend token validation (pod-to-pod inside cluster)
   IdentityUrlInternal: "http://identity-api:8080"
-  CallBackUrl: "http://webhook.eshop.marmaracse.xyz"
+  CallBackUrl: "https://webhook.eshop.marmaracse.xyz"
   # Service discovery (pod-to-pod)
   services__webhooks-api__http__0: "http://webhooks-api:8080"
   WebhookClientOptions__SelfUrl: "http://webhook-client:8080/"
