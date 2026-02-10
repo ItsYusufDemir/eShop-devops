@@ -23,13 +23,10 @@ const BASE_URL = __ENV.BASE_URL || "http://eshop.marmaracse.xyz";
  */
 export const options = {
   stages: [
-    { duration: "1m", target: 5000 },
-    { duration: "3m", target: 5000 },
-    { duration: "1m", target: 150 },
+    { duration: "1m", target: 500 },
+    { duration: "3m", target: 500 },
+    { duration: "1m", target: 1500 },
     { duration: "3m", target: 150 },
-    { duration: "1m", target: 300 },
-    { duration: "3m", target: 300 },
-    { duration: "2m", target: 0 },
   ],
   thresholds: {
     http_req_duration: ["p(95)<2000"], // 95% of requests should be under 2s
