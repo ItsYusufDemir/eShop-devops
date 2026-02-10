@@ -85,8 +85,7 @@ Internet
 
 All VMs run on a single **Proxmox** server. The infrastructure services (PostgreSQL, Redis, RabbitMQ) also run on this server and are exposed to the cluster using Kubernetes `Endpoints` resources.
 
-<!-- TODO: Add screenshot of Proxmox VMs -->
-<!-- ![Proxmox VMs](img/proxmox-vms.png) -->
+![Proxmox VMs](img/proxmox-list.png)
 
 ---
 
@@ -164,7 +163,7 @@ kubectl apply -f k8s/ingress/
 kubectl apply -f k8s/autoscaling/
 ```
 
-[Pods Running](img/pods.png)
+![Pods Running](img/pods.png)
 
 ### Step 3: Ingress with Traefik
 
